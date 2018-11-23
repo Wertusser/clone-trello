@@ -1,23 +1,12 @@
-/* eslint-disable global-require */
-require('babel-polyfill');
-/* eslint-enable global-require */
 import React from 'react';
-import { render } from 'react-dom';
-import { Provider } from 'react-redux';
-import { Router, browserHistory } from 'react-router';
-import { syncHistoryWithStore } from 'react-router-redux';
+import ReactDOM from 'react-dom';
+import './index.css';
+import App from './App';
+import * as serviceWorker from './serviceWorker';
 
-import { routes } from './routes';
+ReactDOM.render(<App />, document.getElementById('root'));
 
-import configureStore from './store/configureStore';
-
-import './assets/temp.styl';
-
-const store = configureStore();
-const history = syncHistoryWithStore(browserHistory, store);
-
-render(
-  <Provider store={store}>
-    <Router history={history} routes={routes} />
-  </Provider>, document.getElementById('app')
-);
+// If you want your app to work offline and load faster, you can change
+// unregister() to register() below. Note this comes with some pitfalls.
+// Learn more about service workers: http://bit.ly/CRA-PWA
+serviceWorker.unregister();
