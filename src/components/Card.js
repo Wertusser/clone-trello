@@ -1,62 +1,67 @@
-import React, { Component } from 'react'
-import { DragSource, DropTarget } from 'react-dnd'
-import * as Types from './../constants/Types'
+import React, { Component } from 'react';
+import { withStyles } from '@material-ui/core/styles';
+import Card from '@material-ui/core/Card';
+import Typography from '@material-ui/core/Typography';
 
-import PropTypes from 'prop-types'
+const styles = {
+    card: {
+        width: "100%",
+        minHeight: "50px",
+        padding: "5px",
+        background: "#fafafa",
+        boxSizing: "border-box",
+        marginBottom: "5px",
+    }
+};
 
-
-class Card extends Component {
+class TrelloCard extends Component {
     constructor(props) {
-        super(props)
+        super(props);
+        this.state = {
+            isEditable: false
+        };
+        this.toggle = this.toggle.bind(this);
+        this.checkSubmit = this.checkSubmit.bind(this);
     }
 
-    static propTypes = {
-        connectDragSource: PropTypes.func.isRequired,
-        connectDropTarget: PropTypes.func.isRequired,
+    toggle() {
+        this.setState({
+            isEditable: !this.state.isEditable
+        });
+    }
+
+    checkSubmit(e) {
+        if (e.key === 'Enter' || e.keyCode === 40) {
+            this.toggle();
+            this.props.onSubmit(e.target.value, this.props.id);
+        }
     }
 
     render() {
-        const { connectDragSource, connectDropTarget } = this.props
+        const { classes } = this.props;
+        const focusField = (element) => element && element.focus();
+        const editElement = this.state.isEditable ? (
+            <div>
+                <textarea ref={focusField}
+                    defaultValue={this.props.text} onBlur={this.toggle} onKeyPress={this.checkSubmit} />
+            </div>
+        ) : (
+            <div>
+                <Typography component="p" onClick={this.toggle}>
+                    {this.props.text}
+                </Typography>
+            </div>
+            );
 
-        return connectDragSource(
-            connectDropTarget(
-                <li className="col-xs-12">
-                    {this.props.children}
-                </li>
-            )
-        )
-    }
+        return (
+            <Card className={classes.card}>
+                <div className="card-status">
+                </div>
+                {editElement}
+            </Card >
+        );
+    };
 }
 
-//Drag and Drop
-const dragNDropSrc = {
-    beginDrag(props) {
-        return { id: props.id }
-    }
-}
+export default withStyles(styles)(TrelloCard);
 
-const collect = (connect, monitor) => ({
-    connectDragSource: connect.dragSource(),
-    isDragging: monitor.isDragging()
-    // connectDragPreview: connect.dragPreview()
-})
-
-const collectTarget = (connect, monitor) => ({
-    connectDropTarget: connect.dropTarget()
-})
-
-const cardHoverTarget = {
-    hover(props, monitor) {
-        const { id } = props
-        const monitorProps = monitor.getItem()
-        const monitorId = monitorProps.id
-
-        if (id !== monitorId) {
-            props.moveCard(id, monitorId)
-        }
-    }
-}
-
-export default DragSource(Types.CARD, dragNDropSrc, collect)(
-    DropTarget(Types.CARD, cardHoverTarget, collectTarget)(Card)
-)

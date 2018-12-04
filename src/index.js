@@ -1,32 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Provider } from 'react-redux';
-import { Route } from 'react-router';
-import { Router } from 'react-router';
-import Localforage from 'localforage';
+import './index.css';
+import App from './App';
+import * as serviceWorker from './serviceWorker';
 
-import App from './containers/App';
+ReactDOM.render(<App />, document.getElementById('root'));
 
-import cfg from './store';
-import './index.scss';
-
-const db = Localforage.createInstance({
-	name: 'trello_react',
-	driver: Localforage.INDEXEDDB,
-	description: 'Used to store panels and cards',
-	version: 1.0
-})
-
-db.getItem('trello')
-	.then(value => value || undefined)
-	.then(value => cfg.configStore(value))
-	.then((store) => {
-		ReactDOM.render(
-			<Provider store={store}>
-				<Router history={cfg.history} >
-					<Route exact path="/" component={App} />
-				</Router>
-			</Provider>, document.getElementById('root'))
-
-		store.subscribe(() => db.setItem('trello', store.getState()))
-	});
+// If you want your app to work offline and load faster, you can change
+// unregister() to register() below. Note this comes with some pitfalls.
+// Learn more about service workers: http://bit.ly/CRA-PWA
+serviceWorker.unregister();
