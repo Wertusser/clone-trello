@@ -41,16 +41,12 @@ class TrelloCard extends Component {
         const { classes } = this.props;
         const focusField = (element) => element && element.focus();
         const editElement = this.state.isEditable ? (
-            <div>
-                <textarea ref={focusField}
-                    defaultValue={this.props.text} onBlur={this.toggle} onKeyPress={this.checkSubmit} />
-            </div>
+            <textarea ref={focusField}
+                defaultValue={this.props.text} onBlur={this.toggle} onKeyPress={this.checkSubmit} />
         ) : (
-            <div>
                 <Typography component="p" onClick={this.toggle}>
                     {this.props.text}
                 </Typography>
-            </div>
             );
 
         return (
