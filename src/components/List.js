@@ -5,7 +5,8 @@ import Paper from '@material-ui/core/Paper';
 import * as actions from '../actions/index';
 import TrelloCard from './Card';
 import AddForm from './addForm';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { Droppable, Draggable } from 'react-beautiful-dnd';
+import { uniq_key } from '../utils';
 
 const styles = theme => ({
     list: {
@@ -31,7 +32,7 @@ export class List extends React.Component {
             actions.addCard({
                 text,
                 listId: this.props.id,
-                id: this.props.cards.length + 1
+                id: uniq_key('card')
             })
         );
     }
@@ -44,24 +45,46 @@ export class List extends React.Component {
                 id: card_id
             })
         );
-    }    
+    }
 
     render() {
-        const cards = this.props.cards.map((card, index) => <TrelloCard key={index} {...card} onSubmit={this.editCard} />);
-        const {classes} = this.props;
+        const { classes } = this.props;
         return (
             <Paper className={classes.list}>
                 <h3>{this.props.title}</h3>
-                {cards}
-                <AddForm onAdd={this.addCard} type="card"/>
+                <Droppable droppableId={`${this.props.id}`}>
+                    {(provided, snapshot) => (
+                        <div
+                            ref={provided.innerRef}
+                        >
+                            {this.props.cards.map((card, index) => (
+                                <Draggable key={card.id} draggableId={card.id} index={index}>
+                                    {(provided, snapshot) => (
+                                        <div
+                                            ref={provided.innerRef}
+                                            {...provided.draggableProps}
+                                            {...provided.dragHandleProps}
+                                        >
+                                            <TrelloCard key={index} {...card} onSubmit={this.editCard} />
+                                        </div>
+                                    )}
+                                </Draggable>
+                            ))}
+                            {provided.placeholder}
+                        </div>
+                    )}
+                </Droppable>
+                <AddForm onAdd={this.addCard} type="card" />
             </Paper>
         );
     }
 };
 
-List.defaultProps = {
-    title: '',
-    cards: []
-};
+function mapStateToProps(store, ownProps) {
+    console.log(ownProps)
+    return {
+        cards: store.lists[ownProps.id -1].cards
+    }
+}
 
-export default withStyles(styles)(connect()(List));
+export default withStyles(styles)(connect(mapStateToProps)(List));

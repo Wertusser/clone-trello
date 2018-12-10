@@ -29,7 +29,6 @@ export class AddForm extends React.Component {
     }
 
     onSubmit(event) {
-        console.log(this)
         event.preventDefault();
         const text = this.textInput.value.trim();
 
